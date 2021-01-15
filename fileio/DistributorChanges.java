@@ -6,8 +6,6 @@ public final class CostsChanges {
 
     private int infrastructureCost;
 
-    private int productionCost;
-
     public int getId() {
         return id;
     }
@@ -16,19 +14,11 @@ public final class CostsChanges {
         return infrastructureCost;
     }
 
-    public int getProductionCost() {
-        return productionCost;
-    }
-
     public void setId(final int id) {
         this.id = id;
     }
 
     public void setInfrastructureCost(final int infrastructureCost) {
         this.infrastructureCost = infrastructureCost;
-    }
-
-    public void setProductionCost(final int productionCost) {
-        this.productionCost = productionCost;
     }
 }
