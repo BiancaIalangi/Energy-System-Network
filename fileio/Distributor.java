@@ -7,7 +7,7 @@ import strategy.StrategyProducer;
 
 import java.util.*;
 
-public final class Distributor {
+public final class Distributor implements Observer {
 
     private int id;
 
@@ -237,13 +237,13 @@ public final class Distributor {
     }
 
 //    //TODO check observer
-//    @Override
-//    public void update(Observable o, Object arg) {
-//        Producer p = (Producer) arg;
-//        int indexChange = producerList.indexOf(p);
-//
-//        producerList.remove(indexChange);
-//    }
+    @Override
+    public void update(Observable o, Object arg) {
+        Producer p = (Producer) arg;
+        int indexChange = producerList.indexOf(p);
+
+        producerList.remove(indexChange);
+    }
 
 
     @Override

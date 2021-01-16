@@ -41,11 +41,11 @@ public final class Main {
 //
 //        for (Distributor distributor : payment.distributors)
 //            System.out.println(distributor);
-//
-//        for (Producer producer : payment.producers)
-//            System.out.println(producer);
+
+
 
         File file = new File(args[0]);
+        //File file = new File("checker/resources/in/basic_12.json");
 
         ObjectMapper objectMapper = new ObjectMapper();
         InputData inputData = objectMapper.treeToValue(
@@ -60,6 +60,7 @@ public final class Main {
         final String tobeWritten = new ObjectMapper().writeValueAsString(outputData);
 
         File outFile = new File(args[1]);
+       // File outFile = new File("hehe.json");
         FileWriter writer = new FileWriter(outFile);
         writer.write(tobeWritten);
         writer.close();

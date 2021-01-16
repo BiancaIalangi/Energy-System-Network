@@ -16,9 +16,9 @@ public final class OutputDistributor {
 
     private int budget;
 
-    private EnergyChoiceStrategyType producerStrategy;
-
     private boolean isBankrupt;
+
+    private EnergyChoiceStrategyType producerStrategy;
 
     private List<OutputContract> contracts = new ArrayList<>();
 
@@ -46,14 +46,6 @@ public final class OutputDistributor {
 
     public void setBudget(final int budget) {
         this.budget = budget;
-    }
-
-    public boolean getIsBankrupt() {
-        return isBankrupt;
-    }
-
-    public void setBankrupt(final boolean bankrupt) {
-        isBankrupt = bankrupt;
     }
 
     public List<OutputContract> getContracts() {
@@ -84,11 +76,16 @@ public final class OutputDistributor {
         return producerStrategy;
     }
 
-    public void setProducerStrategy(EnergyChoiceStrategyType producerStrategy) {
-        this.producerStrategy = producerStrategy;
+
+    public boolean getIsBankrupt() {
+        return isBankrupt;
     }
 
-    public boolean isBankrupt() {
-        return isBankrupt;
+    public void setBankrupt(final boolean bankrupt) {
+        this.isBankrupt = bankrupt;
+    }
+
+    public void setProducerStrategy(EnergyChoiceStrategyType producerStrategy) {
+        this.producerStrategy = producerStrategy;
     }
 }

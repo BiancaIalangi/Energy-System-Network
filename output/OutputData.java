@@ -18,12 +18,12 @@ public final class OutputData {
         for (Distributor distributor : inputData.getInitialData().getDistributors()) {
             OutputDistributor outputDistributor = new OutputDistributor();
 
-            outputDistributor.setBankrupt(distributor.isBankrupt());
             outputDistributor.setBudget(distributor.getInitialBudget());
             outputDistributor.setId(distributor.getId());
             outputDistributor.setEnergyNeededKW(distributor.getEnergyNeededKW());
             outputDistributor.setContractCost(distributor.getPayMonth());
             outputDistributor.setProducerStrategy(distributor.getProducerStrategy());
+            outputDistributor.setBankrupt(distributor.isBankrupt());
             for (Contract contract : distributor.getContracts()) {
                 outputDistributor.addPaymentContract(contract);
             }
@@ -58,6 +58,9 @@ public final class OutputData {
         // order distributor by their id (ascending order)
         Comparator<OutputDistributor> comparator1 = Comparator.comparing(OutputDistributor::getId);
         distributors.sort(comparator1);
+
+        Comparator<OutputProducers> comparator2 = Comparator.comparing(OutputProducers::getId);
+        energyProducers.sort(comparator2);
     }
 
     public List<OutputConsumer> getConsumers() {
@@ -74,5 +77,13 @@ public final class OutputData {
 
     public void setDistributors(final List<OutputDistributor> distributors) {
         this.distributors = distributors;
+    }
+
+    public List<OutputProducers> getEnergyProducers() {
+        return energyProducers;
+    }
+
+    public void setEnergyProducers(List<OutputProducers> energyProducers) {
+        this.energyProducers = energyProducers;
     }
 }
