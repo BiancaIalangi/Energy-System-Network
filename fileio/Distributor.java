@@ -1,8 +1,11 @@
 package fileio;
 
 import payment.Contract;
-import java.util.ArrayList;
-import java.util.List;
+import strategies.EnergyChoiceStrategyType;
+import strategy.GreenStrategy;
+import strategy.StrategyProducer;
+
+import java.util.*;
 
 public final class Distributor {
 
@@ -14,7 +17,19 @@ public final class Distributor {
 
     private int initialInfrastructureCost;
 
-    private int initialProductionCost;
+    private int energyNeededKW;
+
+    private int currKW;
+
+    private EnergyChoiceStrategyType producerStrategy;
+
+    private StrategyProducer strategyProducer;
+
+    private int productionCost = 0;
+
+    private int contractCost = 0;
+
+    private List<Producer> producerList = new ArrayList<>();
 
     // how much a consumer has to pay
     private int payMonth;
@@ -29,6 +44,42 @@ public final class Distributor {
 
     // database of contracts (assigned to this distributor)
     private List<Contract> contracts = new ArrayList<>();
+
+    public void applyStrategy(List<Producer> producers) {
+        strategyProducer.strategyOrderProducer(producers, this);
+    }
+
+    public StrategyProducer getStrategyProducer() {
+        return strategyProducer;
+    }
+
+    public void setStrategyProducer(StrategyProducer strategyProducer) {
+        this.strategyProducer = strategyProducer;
+    }
+
+    public int getCurrKW() {
+        return currKW;
+    }
+
+    public void addCurrKW(int addKW) {
+        currKW += addKW;
+    }
+
+    public int getEnergyNeededKW() {
+        return energyNeededKW;
+    }
+
+    public void setEnergyNeededKW(int energyNeededKW) {
+        this.energyNeededKW = energyNeededKW;
+    }
+
+    public EnergyChoiceStrategyType getProducerStrategy() {
+        return producerStrategy;
+    }
+
+    public void setProducerStrategy(EnergyChoiceStrategyType producerStrategy) {
+        this.producerStrategy = producerStrategy;
+    }
 
     public int getId() {
         return id;
@@ -62,14 +113,6 @@ public final class Distributor {
         this.initialInfrastructureCost = initialInfrastructureCost;
     }
 
-    public int getInitialProductionCost() {
-        return initialProductionCost;
-    }
-
-    public void setInitialProductionCost(final int initialProductionCost) {
-        this.initialProductionCost = initialProductionCost;
-    }
-
     public int getPayMonth() {
         return payMonth;
     }
@@ -94,7 +137,7 @@ public final class Distributor {
      * calculate the final price if there are no clients (per month)
      */
     public void setNoConsumerPrice() {
-        payMonth = initialInfrastructureCost + initialProductionCost + profitMonth;
+        payMonth = initialInfrastructureCost + productionCost + profitMonth;
     }
 
     /**
@@ -102,14 +145,16 @@ public final class Distributor {
      * @param round from numberOfTurns
      */
     public void setConsumersPrice(final int round) {
-        profitMonth = (int) Math.round(Math.floor(0.2 * initialProductionCost));
+        //setContractCost();
+        setProductionCost();
+        profitMonth = (int) Math.round(Math.floor(0.2 * productionCost));
         // calculate the price if there are no consumers
         // or before rounds (which is round 0)
         if (contracts.size() == 0 || round == -1) {
             setNoConsumerPrice();
         } else {
             payMonth = (int) Math.round(Math.floor((initialInfrastructureCost
-                    / (float) contracts.size()) + initialProductionCost + profitMonth));
+                    / (float) contracts.size()) + productionCost + profitMonth));
         }
     }
 
@@ -122,7 +167,7 @@ public final class Distributor {
             costsMonth = 0;
         } else {
             // if there are consumers assigned to this distributor
-            costsMonth = initialProductionCost * contracts.size();
+            costsMonth = productionCost * contracts.size();
         }
     }
 
@@ -156,4 +201,61 @@ public final class Distributor {
         initialBudget -= costsMonth;
     }
 
+    public List<Producer> getProducerList() {
+        return producerList;
+    }
+
+    public void setProducerList(List<Producer> producerList) {
+        this.producerList = producerList;
+    }
+
+    public void addProducer(Producer producer) {
+        producerList.add(producer);
+    }
+
+    public boolean existProducer (Producer p) {
+        return producerList.contains(p);
+    }
+
+    public void setProductionCost() {
+        double cost;
+        double totalCost = 0;
+        for (Producer producer : producerList) {
+            cost = producer.getEnergyPerDistributor() * producer.getPriceKW();
+            totalCost += cost;
+        }
+        productionCost = (int)Math.round(Math.floor(totalCost/10));
+    }
+
+    public void setContractCost() {
+        //setProductionCost();
+        contractCost = initialInfrastructureCost + productionCost;
+    }
+
+    public boolean needKW() {
+        return currKW <= energyNeededKW;
+    }
+
+//    //TODO check observer
+//    @Override
+//    public void update(Observable o, Object arg) {
+//        Producer p = (Producer) arg;
+//        int indexChange = producerList.indexOf(p);
+//
+//        producerList.remove(indexChange);
+//    }
+
+
+    @Override
+    public String toString() {
+        return "Distributor{" +
+                "id=" + id +
+                ", initialBudget=" + initialBudget +
+                ", energyNeededKW=" + energyNeededKW +
+                ", producerStrategy=" + producerStrategy +
+                ", payMonth=" + payMonth +
+                ", bankrupt=" + bankrupt +
+                ", contracts=" + contracts +
+                '}';
+    }
 }

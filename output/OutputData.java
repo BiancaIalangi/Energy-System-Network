@@ -1,9 +1,8 @@
 package output;
 
+import fileio.*;
 import payment.Contract;
-import fileio.Consumers;
-import fileio.Distributor;
-import fileio.InputData;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,6 +11,7 @@ public final class OutputData {
 
     private List<OutputConsumer> consumers = new ArrayList<>();
     private List<OutputDistributor> distributors = new ArrayList<>();
+    private List<OutputProducers> energyProducers = new ArrayList<>();
 
     public OutputData(final InputData inputData) {
         // create output for distributors to write in json
@@ -21,6 +21,9 @@ public final class OutputData {
             outputDistributor.setBankrupt(distributor.isBankrupt());
             outputDistributor.setBudget(distributor.getInitialBudget());
             outputDistributor.setId(distributor.getId());
+            outputDistributor.setEnergyNeededKW(distributor.getEnergyNeededKW());
+            outputDistributor.setContractCost(distributor.getPayMonth());
+            outputDistributor.setProducerStrategy(distributor.getProducerStrategy());
             for (Contract contract : distributor.getContracts()) {
                 outputDistributor.addPaymentContract(contract);
             }
@@ -33,6 +36,19 @@ public final class OutputData {
             cons.setBankrupt(consumer.isBankrupt());
             cons.setBudget(consumer.getInitialBudget());
             consumers.add(cons);
+        }
+
+        for (Producer producer : inputData.getInitialData().getProducers()) {
+            OutputProducers p = new OutputProducers();
+            p.setId(producer.getId());
+            p.setMaxDistributors(producer.getMaxDistributors());
+            p.setPriceKW(producer.getPriceKW());
+            p.setEnergyType(producer.getEnergyType());
+            p.setEnergyPerDistributor(producer.getEnergyPerDistributor());
+            for (MonthlyStatus monthlyStatus : producer.getMonthlyStatusList()) {
+                p.addMonthlyStat(monthlyStatus);
+            }
+            energyProducers.add(p);
         }
 
         // order consumers by their id (ascending order)

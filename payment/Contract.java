@@ -54,4 +54,13 @@ public final class Contract {
     public void decRemainedContractMonths() {
         remainedContractMonths--;
     }
+
+    @Override
+    public String toString() {
+        return "Contract{" +
+                "consumerID=" + consumer.getId() +
+                ", price=" + price +
+                ", remainedContractMonths=" + remainedContractMonths +
+                '}';
+    }
 }

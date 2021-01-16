@@ -94,4 +94,13 @@ public final class Consumers {
     public boolean canPay(final int taxes) {
         return initialBudget - taxes >= 0;
     }
+
+    @Override
+    public String toString() {
+        return "Consumers{" +
+                "id=" + id +
+                ", initialBudget=" + initialBudget +
+                ", bankrupt=" + bankrupt +
+                '}';
+    }
 }

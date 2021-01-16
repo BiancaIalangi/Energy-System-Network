@@ -1,6 +1,6 @@
 package fileio;
 
-public final class CostsChanges {
+public final class DistributorChanges {
 
     private int id;
 

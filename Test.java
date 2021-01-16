@@ -6,12 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 class Config {
     private String homework;
@@ -19,6 +14,8 @@ class Config {
     private Integer checkstyleScore;
     private Integer homeworkDesignScore;
     private Integer readmeScore;
+
+    private Integer gitScore;
     private List<TestType> testTypes;
 
     public String getHomework() {
@@ -68,9 +65,18 @@ class Config {
     public void setTestTypes(final List<TestType> testTypes) {
         this.testTypes = testTypes;
     }
+
+    public Integer getGitScore() {
+        return gitScore;
+    }
+
+    public void setGitScore(Integer gitScore) {
+        this.gitScore = gitScore;
+    }
 }
 
 class TestType {
+
     private Integer score;
     private String type;
 
@@ -115,7 +121,7 @@ public final class Test {
      */
     public static void main(final String[] argv) {
         runTests();
-        preTestCleanUp();
+        //preTestCleanUp();
         System.exit(0);
     }
 
@@ -134,7 +140,9 @@ public final class Test {
     private static void runTests() {
         Config config = loadConfig();
         totalScore = config.getCheckstyleScore();
-        int manualScore = config.getReadmeScore() + config.getHomeworkDesignScore();
+        int manualScore = config.getReadmeScore()
+                + config.getHomeworkDesignScore()
+                + config.getGitScore();
 
         for (final File testFile: Objects.requireNonNull(TEST_INPUTS_FILE.listFiles())) {
             String testFileName = testFile.getName();
@@ -152,12 +160,13 @@ public final class Test {
             score += config.getCheckstyleScore();
         }
 
-        System.out.println("Total score: .......................... " + score + "/" + totalScore);
+        System.out.println("Total score: .......................... " + score
+                + "/" + totalScore);
         System.out.println("Up to "
                 + manualScore
                 + " points will be awarded manually by the teaching assistants."
-                + " (README & OOP design)");
-        System.out.println("This value can be exceeded for great implementations.");
+                + " (README & GIT)");
+        System.out.println("The final value can be exceeded for great implementations.");
     }
 
     private static void runTest(
@@ -197,7 +206,8 @@ public final class Test {
                     printMessage(testFileName, "0/" + testScore, true);
                 }
             } catch (IOException e) {
-                printMessage(testFileName, "Output file badly formatted. Skipping test...");
+                printMessage(testFileName,
+                        "Output file badly formatted. Skipping test... + " + e.getMessage());
             }
         }
     }

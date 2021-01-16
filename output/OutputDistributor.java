@@ -1,6 +1,7 @@
 package output;
 
 import payment.Contract;
+import strategies.EnergyChoiceStrategyType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,13 @@ public final class OutputDistributor {
 
     private int id;
 
+    private int energyNeededKW;
+
+    private int contractCost;
+
     private int budget;
+
+    private EnergyChoiceStrategyType producerStrategy;
 
     private boolean isBankrupt;
 
@@ -55,5 +62,33 @@ public final class OutputDistributor {
 
     public void setContracts(final List<OutputContract> contracts) {
         this.contracts = contracts;
+    }
+
+    public int getEnergyNeededKW() {
+        return energyNeededKW;
+    }
+
+    public void setEnergyNeededKW(int energyNeededKW) {
+        this.energyNeededKW = energyNeededKW;
+    }
+
+    public int getContractCost() {
+        return contractCost;
+    }
+
+    public void setContractCost(int contractCost) {
+        this.contractCost = contractCost;
+    }
+
+    public EnergyChoiceStrategyType getProducerStrategy() {
+        return producerStrategy;
+    }
+
+    public void setProducerStrategy(EnergyChoiceStrategyType producerStrategy) {
+        this.producerStrategy = producerStrategy;
+    }
+
+    public boolean isBankrupt() {
+        return isBankrupt;
     }
 }

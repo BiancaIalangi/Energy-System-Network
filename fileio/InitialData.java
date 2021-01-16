@@ -8,6 +8,8 @@ public final class InitialData {
 
     private ArrayList<Distributor> distributors;
 
+    private ArrayList<Producer> producers;
+
     public ArrayList<Consumers> getConsumers() {
         return consumers;
     }
@@ -23,4 +25,13 @@ public final class InitialData {
     public void setDistributors(final ArrayList<Distributor> distributors) {
         this.distributors = distributors;
     }
+
+    public ArrayList<Producer> getProducers() {
+        return producers;
+    }
+
+    public void setProducers(ArrayList<Producer> producers) {
+        this.producers = producers;
+    }
+
 }

@@ -12,7 +12,17 @@ public final class MonthlyUpdates {
     /**
      * updates at prices from distributors from a single round
      */
-    private List<CostsChanges> costsChanges;
+    private List<DistributorChanges> distributorChanges;
+
+    private List<ProducerChanges> producerChanges;
+
+    public List<ProducerChanges> getProducerChanges() {
+        return producerChanges;
+    }
+
+    public void setProducerChanges(List<ProducerChanges> producerChanges) {
+        this.producerChanges = producerChanges;
+    }
 
     public List<Consumers> getNewConsumers() {
         return newConsumers;
@@ -22,11 +32,11 @@ public final class MonthlyUpdates {
         this.newConsumers = newConsumers;
     }
 
-    public List<CostsChanges> getCostsChanges() {
-        return costsChanges;
+    public List<DistributorChanges> getDistributorChanges() {
+        return distributorChanges;
     }
 
-    public void setCostsChanges(final List<CostsChanges> costsChanges) {
-        this.costsChanges = costsChanges;
+    public void setDistributorChanges(List<DistributorChanges> distributorChanges) {
+        this.distributorChanges = distributorChanges;
     }
 }
