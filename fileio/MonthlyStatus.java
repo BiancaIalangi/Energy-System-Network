@@ -4,7 +4,7 @@ import java.util.List;
 
 public class MonthlyStatus {
     private int month = 0;
-    private List<Distributor> distributors;
+    private List<Distributor> distributors = new ArrayList<>();
 
     public MonthlyStatus(int month, List<Distributor> distributors) {
         this.month = month;
@@ -15,9 +15,15 @@ public class MonthlyStatus {
         this.month = month;
     }
 
-    public void updateDistribuitorsList(Distributor d) {
-        if (!distributors.contains(d))
-            distributors.add(d);
+    public boolean canUpdateDistribuitorsList(Distributor d) {
+        if (!distributors.isEmpty()) {
+            for (Distributor distributor : distributors) {
+                if (distributor.getId() == d.getId()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public int getMonth() {

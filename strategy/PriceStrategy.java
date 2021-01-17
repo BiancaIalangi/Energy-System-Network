@@ -10,15 +10,16 @@ public class PriceStrategy implements StrategyProducer{
 
     @Override
     public void strategyOrderProducer(List<Producer> producers, Distributor distributor) {
-        Comparator<Producer> comparator = Comparator.comparing(Producer::getId);
-        producers.sort(comparator);
+
         Comparator<Producer> comparator1 = Comparator.comparing(Producer::getEnergyPerDistributor);
         producers.sort(comparator1.reversed());
         Comparator<Producer> comparator2 = Comparator.comparing(Producer::getPriceKW);
         producers.sort(comparator2);
-        for (Producer p : producers) {
+        List<Producer> copyListProducer = java.util.List.copyOf(producers);
+        for (Producer p : copyListProducer) {
             if (distributor.needKW()) {
-                if (p.addDistributor(distributor)) {
+                if (p.canAddObserver(distributor)) {
+                    p.addObserver(distributor);
                     distributor.addProducer(p);
                     distributor.addCurrKW(p.getEnergyPerDistributor());
                 }

@@ -100,7 +100,7 @@ public final class Consumers {
         return "Consumers{" +
                 "id=" + id +
                 ", initialBudget=" + initialBudget +
-                ", bankrupt=" + bankrupt +
+                ", contract=" + contract.getPrice() +
                 '}';
     }
 }

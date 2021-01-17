@@ -21,6 +21,16 @@ public class Producer extends Observable {
 
     private List<MonthlyStatus> monthlyStatusList = new ArrayList<>();
 
+    private boolean isGreen;
+
+    public boolean isGreen() {
+        return isGreen;
+    }
+
+    public void setGreen(boolean green) {
+        isGreen = green;
+    }
+
     public int getId() {
         return id;
     }
@@ -78,32 +88,35 @@ public class Producer extends Observable {
     }
 
     public void upgradeMonthlyStatusList(int month) {
-        MonthlyStatus monthlyStatus = new  MonthlyStatus(month, distributorList);
-        monthlyStatusList.add(monthlyStatus);
+        List<Distributor> copyDistributorList = java.util.List.copyOf(distributorList);
+        MonthlyStatus m = new MonthlyStatus(month, copyDistributorList);
+//        for (Distributor d : distributorList)
+//            if (m.canUpdateDistribuitorsList(d))
+//                monthlyStatusList.add(m);
+//        System.out.println("Distrib din MUpdate " + m.getDistributors());
+
+        monthlyStatusList.add(m);
     }
 
     //TODO check observer
-    public boolean addDistributor(Distributor d) {
+    public boolean canAddObserver(Distributor distributor) {
         if (distributorList.size() == maxDistributors) {
             return false;
         }
-        distributorList.add(d);
+        distributorList.add(distributor);
         return true;
     }
 
     //TODO check observer
-    void setChange(ProducerChanges producerChanges) {
-        energyPerDistributor = producerChanges.getEnergyPerDistributor();
+    public void setModification() {
+        setChanged();
+        notifyObservers();
     }
 
     @Override
     public String toString() {
         return "Producer{" +
                 "id=" + id +
-                ", energyType=" + energyType +
-                ", maxDistributors=" + maxDistributors +
-                ", priceKW=" + priceKW +
-                ", energyPerDistributor=" + energyPerDistributor +
                 ", monthlyStatusList=" + monthlyStatusList +
                 '}';
     }

@@ -2,7 +2,6 @@ package fileio;
 
 import payment.Contract;
 import strategies.EnergyChoiceStrategyType;
-import strategy.GreenStrategy;
 import strategy.StrategyProducer;
 
 import java.util.*;
@@ -21,7 +20,7 @@ public final class Distributor implements Observer {
 
     private int currKW;
 
-    private EnergyChoiceStrategyType producerStrategy;
+    private String producerStrategy;
 
     private StrategyProducer strategyProducer;
 
@@ -73,12 +72,20 @@ public final class Distributor implements Observer {
         this.energyNeededKW = energyNeededKW;
     }
 
-    public EnergyChoiceStrategyType getProducerStrategy() {
+    public String getProducerStrategy() {
         return producerStrategy;
     }
 
-    public void setProducerStrategy(EnergyChoiceStrategyType producerStrategy) {
+    public void setProducerStrategy(String producerStrategy) {
         this.producerStrategy = producerStrategy;
+    }
+
+    public EnergyChoiceStrategyType setEnergyType() {
+        if (producerStrategy.equals("GREEN"))
+            return EnergyChoiceStrategyType.GREEN;
+        if (producerStrategy.equals("PRICE"))
+            return EnergyChoiceStrategyType.PRICE;
+        return EnergyChoiceStrategyType.QUANTITY;
     }
 
     public int getId() {
@@ -153,8 +160,8 @@ public final class Distributor implements Observer {
         if (contracts.size() == 0 || round == -1) {
             setNoConsumerPrice();
         } else {
-            payMonth = (int) Math.round(Math.floor((initialInfrastructureCost
-                    / (float) contracts.size()) + productionCost + profitMonth));
+            payMonth = (int) Math.round(Math.floor((float)(initialInfrastructureCost
+                    / contracts.size()) + productionCost + profitMonth));
         }
     }
 
@@ -218,17 +225,14 @@ public final class Distributor implements Observer {
     }
 
     public void setProductionCost() {
-        double cost;
-        double totalCost = 0;
+        double cost = 0;
         for (Producer producer : producerList) {
-            cost = producer.getEnergyPerDistributor() * producer.getPriceKW();
-            totalCost += cost;
+            cost += producer.getEnergyPerDistributor() * producer.getPriceKW();
         }
-        productionCost = (int)Math.round(Math.floor(totalCost/10));
+        productionCost = (int)Math.round(Math.floor((float)cost/10));
     }
 
     public void setContractCost() {
-        //setProductionCost();
         contractCost = initialInfrastructureCost + productionCost;
     }
 
@@ -236,26 +240,21 @@ public final class Distributor implements Observer {
         return currKW <= energyNeededKW;
     }
 
-//    //TODO check observer
-    @Override
-    public void update(Observable o, Object arg) {
-        Producer p = (Producer) arg;
-        int indexChange = producerList.indexOf(p);
-
-        producerList.remove(indexChange);
+    public int getProductionCost() {
+        return productionCost;
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        productionCost = 0;
+        currKW = 0;
+    }
 
     @Override
     public String toString() {
         return "Distributor{" +
                 "id=" + id +
-                ", initialBudget=" + initialBudget +
-                ", energyNeededKW=" + energyNeededKW +
-                ", producerStrategy=" + producerStrategy +
-                ", payMonth=" + payMonth +
-                ", bankrupt=" + bankrupt +
-                ", contracts=" + contracts +
+                ", initialInfrastructureCost=" + initialInfrastructureCost +
                 '}';
     }
 }

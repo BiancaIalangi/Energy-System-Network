@@ -59,6 +59,7 @@ public final class Payment {
     /**
      * create a new contract from consumer c
      * that what to subscribe to distributor d
+     *
      * @param c consumer that needs a new contract
      * @param d where he want a new contract
      */
@@ -86,7 +87,7 @@ public final class Payment {
         }
     }
 
-    public Distributor findDistributorByID (int id) {
+    public Distributor findDistributorByID(int id) {
         for (Distributor d : distributors) {
             if (d.getId() == id) {
                 return d;
@@ -101,9 +102,7 @@ public final class Payment {
     public void roundZero() {
         // find the distributor with the min taxes
         setStrategy();
-        for (Distributor d : distributors) {
-            d.setProductionCost();
-        }
+
         Distributor distributor = findMinDistributor(-1);
         for (Consumers c : consumers) {
             assert distributor != null;
@@ -131,58 +130,47 @@ public final class Payment {
         checkDistributor();
     }
 
-    /**
-     * update changes from rounds
-     * @param distributorChanges changes to infrastructure and production
-     */
-    public void updateDistributor(final DistributorChanges distributorChanges) {
-        for (Distributor d : distributors) {
-            if (d.getId() == distributorChanges.getId()) {
-                d.setInitialInfrastructureCost(distributorChanges.getInfrastructureCost());
-            }
-        }
-    }
 
-
-    public void updateProducer(final ProducerChanges producerChanges) {
-        for (Producer p : producers) {
-            if (p.getId() == producerChanges.getId()) {
-                p.setEnergyPerDistributor(producerChanges.getEnergyPerDistributor());
-            }
-        }
-    }
-
-    public StrategyProducer strategyProducer() {
-        for (Distributor d : distributors) {
-            switch (d.getProducerStrategy()) {
-                case GREEN: return new GreenStrategy();
-                case PRICE: return new PriceStrategy();
-                case QUANTITY: return new QuantityStrategy();
-            }
+    public StrategyProducer strategyProducer(Distributor distributor) {
+        switch (distributor.setEnergyType()) {
+            case GREEN:
+                return new GreenStrategy();
+            case PRICE:
+                return new PriceStrategy();
+            case QUANTITY:
+                return new QuantityStrategy();
         }
         return null;
     }
 
     public void setStrategy() {
         for (Distributor d : distributors) {
-            d.setStrategyProducer(strategyProducer());
-            d.applyStrategy(producers);
+            if (d.getProductionCost() == 0) {
+                d.setStrategyProducer(strategyProducer(d));
+                d.applyStrategy(producers);
+                d.setProductionCost();
+            }
         }
     }
 
-    public void noChangeRound() {
+    /**
+     * a basic round
+     * updates consumers and distributors
+     */
+    public void basicRound() {
         roundZero();
         for (int i = 0; i < numberOfTurns; i++) {
+            System.out.println("-----------------------------ROUND " + (i + 1));
+
+            monthlyUpdates.get(i).updateConsumerDistributor(consumers, distributors);
+
+            Comparator<Distributor> comparator = Comparator.comparing(Distributor::getId);
+            distributors.sort(comparator);
 
             // calculate price for each distributor
             for (Distributor distributor : distributors) {
                 distributor.setConsumersPrice(i);
-//                for(Producer p : distributor.getProducerList())
-//                    p.upgradeMonthlyStatusList(i + 1);
             }
-
-            for(Producer p : producers)
-                p.upgradeMonthlyStatusList(i + 1);
 
             // find the distributor with the smallest price
             Distributor goodDistributor = findMinDistributor(i);
@@ -232,7 +220,7 @@ public final class Payment {
                             // debt from old contract
                             int oldRest = (int) Math.round(Math.floor(1.2 * c.getRestStatus()));
                             int idOldRest = c.getContract().getDistributorID();
-                            // find the distributor to remove the contract from his db
+                            // find the distributor to pay the debt
                             findDistributorByID(c.getContract().getDistributorID()).getContracts().remove(c.getContract());
                             // the consumer has no contract anymore
                             c.setContract(null);
@@ -240,11 +228,20 @@ public final class Payment {
                             // create new contract
                             createContract(c, goodDistributor);
                             // check if he can afford to pay the debt and the new tax
-                            if (c.canPay(oldRest + c.getContract().getPrice())) {
-                                c.payTaxes(oldRest + c.getContract().getPrice());
-                                distributors.get(idOldRest).getPaid(oldRest + c.getContract().getPrice());
+                            if (c.getContract().getDistributorID() == idOldRest) {
+                                if (c.canPay(oldRest + c.getContract().getPrice())) {
+                                    distributors.get(idOldRest).getPaid(oldRest + c.getContract().getPrice());
+                                    c.payTaxes(oldRest + c.getContract().getPrice());
+                                } else {
+                                    c.setBankrupt(true);
+                                }
                             } else {
-                                c.setBankrupt(true);
+                                if (c.canPay(oldRest)) {
+                                    distributors.get(idOldRest).getPaid(oldRest);
+                                    c.payTaxes(oldRest);
+                                } else {
+                                    c.setBankrupt(true);
+                                }
                             }
                         }
                     } else {
@@ -272,137 +269,29 @@ public final class Payment {
                 distributor.getContracts().removeIf(
                         contract -> contract.getConsumer().isBankrupt());
             }
+
+            monthlyUpdates.get(i).updateProducer(producers, distributors);
+            Comparator<Producer> comparator3 = Comparator.comparing(Producer::getId);
+            producers.sort(comparator3);
+
+            for (Producer p : producers)
+                p.upgradeMonthlyStatusList(i + 1);
+
+//            for (Producer p : producers)
+//                System.out.println(p);
+//            for (Distributor d : distributors)
+//            for (Consumers c : consumers)
+//                System.out.println("ConsumersID " + c.getId() + " a platit " + c.getContract().getPrice() + " buget " + c.getInitialBudget());
+////                System.out.println("DistributorID " + d.getId() + " BUGET " + d.getInitialBudget());
+
+//            for (Producer p : producers)
+//                System.out.println("producersID " + p.getId() + " stats " + p.getMonthlyStatusList());
+
+//            for (Producer p : producers) {
+//                for (Distributor d : p.getDistributorList())
+//                    System.out.println("Producer " + p.getId() + " distributor " + d.getId());
+//            }
+
         }
     }
-
-//    /**
-//     * a basic round
-//     * updates consumers and distributors
-//     */
-//    public void basicRound() {
-//        roundZero();
-//        for (int i = 0; i < numberOfTurns; i++) {
-//            // updates consumers' list
-//            if (!monthlyUpdates.get(i).getNewConsumers().isEmpty()) {
-//                consumers.addAll(monthlyUpdates.get(i).getNewConsumers());
-//            }
-//            // updates changes made by distributors in a round
-//            if (!monthlyUpdates.get(i).getDistributorChanges().isEmpty()) {
-//                for (DistributorChanges distributorChanges : monthlyUpdates.get(i).getDistributorChanges()) {
-//                    updateDistributor(distributorChanges);
-//                }
-//            }
-//
-//            // updates changes made by producer in a round
-//            if (!monthlyUpdates.get(i).getProducerChanges().isEmpty()) {
-//                for (ProducerChanges producerChanges : monthlyUpdates.get(i).getProducerChanges()) {
-//                    updateProducer(producerChanges);
-//                }
-//            }
-//
-//            // calculate price for each distributor
-//            for (Distributor distributor : distributors) {
-//                distributor.setConsumersPrice(i);
-//            }
-//
-//            // find the distributor with the smallest price
-//            Distributor goodDistributor = findMinDistributor(i);
-//
-//            // remove expired contracts and no debts
-//            for (Distributor distributor : distributors) {
-//                distributor.getContracts().removeIf(c -> c.getRemainedContractMonths() == 0
-//                        && c.getConsumer().getRestStatus() == 0);
-//            }
-//
-//            for (Consumers cons : consumers) {
-//                //check if he is bankrupt
-//                if (!cons.isBankrupt()) {
-//                    // create a contract if he doesn't has or has an expired contract
-//                    if ((cons.getContract() == null || cons.getContract().
-//                            getRemainedContractMonths() <= 0) && cons.getRestStatus() == 0) {
-//                        assert goodDistributor != null;
-//                        createContract(cons, goodDistributor);
-//                    }
-//                }
-//            }
-//
-//            for (Consumers c : consumers) {
-//                //check if he is bankrupt
-//                if (!c.getBankrupt()) {
-//                    // consumer receive income
-//                    c.setSum();
-//                    // if he has debts
-//                    if (c.getRestStatus() != 0) {
-//                        // and the contract didn't expire
-//                        if (c.getContract().getRemainedContractMonths() != 0) {
-//                            // and he can afford to pay
-//                            if (c.canPay((int) 2.2 * c.getContract().getPrice())) {
-//                                c.payTaxes((int) 2.2 * c.getContract().getPrice());
-//                                for (Distributor d : distributors) {
-//                                    if (d.getId() == c.getContract().getDistributorID()) {
-//                                        d.getPaid((int) 2.2 * c.getContract().getPrice());
-//                                    }
-//                                }
-//                                c.getContract().decRemainedContractMonths();
-//                                c.setRestStatus(0);
-//                            } else {
-//                                // if can't afford consumer is bankrupt
-//                                c.setBankrupt(true);
-//                            }
-//                        } else {
-//                            // debt from old contract
-//                            int oldRest = (int) Math.round(Math.floor(1.2 * c.getRestStatus()));
-//                            int idOldRest = c.getContract().getDistributorID();
-//                            // find the distributor to remove the contract from his db
-//                            findDistributorByID(c.getContract().getDistributorID()).getContracts().remove(c.getContract());
-//                            // the consumer has no contract anymore
-//                            c.setContract(null);
-//                            assert goodDistributor != null;
-//                            // create new contract
-//                            createContract(c, goodDistributor);
-//                            // check if he can afford to pay the debt and the new tax
-//                            if (goodDistributor.getId() == findDistributorByID(idOldRest).getId()) {
-//                                if (c.canPay(oldRest + c.getContract().getPrice())) {
-//                                    c.payTaxes(oldRest);
-//                                    distributors.get(idOldRest).getPaid(oldRest);
-//                                    findDistributorByID(idOldRest).getPaid(c.getContract().getPrice());
-//                                } else {
-//                                    c.setBankrupt(true);
-//                                }
-//                            } else {
-//                                if (c.canPay(oldRest)) {
-//                                    c.payTaxes(oldRest);
-//                                    distributors.get(idOldRest).getPaid(oldRest);
-//                                } else {
-//                                    c.setBankrupt(true);
-//                                }
-//                            }
-//                        }
-//                    } else {
-//                        if (!c.canPay(c.getContract().getPrice())) {
-//                            // if he has no debts and can't afford to pay this tax
-//                            // set as consumer's debt
-//                            c.setRestStatus(c.getContract().getPrice());
-//                        } else {
-//                                c.payTaxes(c.getContract().getPrice());
-//                                for (Distributor d : distributors) {
-//                                    if (d.getId() == c.getContract().getDistributorID()) {
-//                                        d.getPaid(c.getContract().getPrice());
-//                                    }
-//                                }
-//                        }
-//                        c.getContract().decRemainedContractMonths();
-//                    }
-//                }
-//            }
-//            // check distributor's financial status
-//            checkDistributor();
-//
-//            // remove all contracts that have bankrupt consumers
-//            for (Distributor distributor : distributors) {
-//                distributor.getContracts().removeIf(
-//                        contract -> contract.getConsumer().isBankrupt());
-//            }
-//        }
-//    }
 }
