@@ -2,15 +2,20 @@ package fileio;
 
 import payment.Contract;
 import strategies.EnergyChoiceStrategyType;
-import strategy.StrategyProducer;
+import strategies.StrategyProducer;
+import utils.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+
 
 public final class Distributor implements Observer {
 
     private int id;
 
-    private int contractLength;
+    private int contractLength = 0;
 
     private int initialBudget;
 
@@ -20,13 +25,11 @@ public final class Distributor implements Observer {
 
     private int currKW;
 
-    private String producerStrategy;
+    private EnergyChoiceStrategyType producerStrategy;
 
     private StrategyProducer strategyProducer;
 
     private int productionCost = 0;
-
-    private int contractCost = 0;
 
     private List<Producer> producerList = new ArrayList<>();
 
@@ -44,23 +47,34 @@ public final class Distributor implements Observer {
     // database of contracts (assigned to this distributor)
     private List<Contract> contracts = new ArrayList<>();
 
-    public void applyStrategy(List<Producer> producers) {
+    public void applyStrategy(final List<Producer> producers) {
         strategyProducer.strategyOrderProducer(producers, this);
     }
 
-    public StrategyProducer getStrategyProducer() {
-        return strategyProducer;
-    }
+//    public Distributor createCpy() {
+//        Distributor dCopy = new Distributor();
+//        dCopy.id = id;
+//        dCopy.contractLength = contractLength;
+//        dCopy.initialBudget = initialBudget;
+//        dCopy.initialInfrastructureCost = initialInfrastructureCost;
+//        dCopy.energyNeededKW = energyNeededKW;
+//        dCopy.producerStrategy = producerStrategy;
+//        dCopy.strategyProducer = strategyProducer;
+//        dCopy.productionCost = productionCost;
+//        dCopy.producerList = producerList;
+//        dCopy.payMonth = payMonth;
+//        dCopy.profitMonth = profitMonth;
+//        dCopy.costsMonth = costsMonth;
+//        dCopy.bankrupt = bankrupt;
+//        dCopy.contracts = contracts;
+//        return dCopy;
+//    }
 
-    public void setStrategyProducer(StrategyProducer strategyProducer) {
+    public void setStrategyProducer(final StrategyProducer strategyProducer) {
         this.strategyProducer = strategyProducer;
     }
 
-    public int getCurrKW() {
-        return currKW;
-    }
-
-    public void addCurrKW(int addKW) {
+    public void addCurrKW(final int addKW) {
         currKW += addKW;
     }
 
@@ -68,24 +82,16 @@ public final class Distributor implements Observer {
         return energyNeededKW;
     }
 
-    public void setEnergyNeededKW(int energyNeededKW) {
+    public void setEnergyNeededKW(final int energyNeededKW) {
         this.energyNeededKW = energyNeededKW;
     }
 
-    public String getProducerStrategy() {
+    public EnergyChoiceStrategyType getProducerStrategy() {
         return producerStrategy;
     }
 
-    public void setProducerStrategy(String producerStrategy) {
+    public void setProducerStrategy(EnergyChoiceStrategyType producerStrategy) {
         this.producerStrategy = producerStrategy;
-    }
-
-    public EnergyChoiceStrategyType setEnergyType() {
-        if (producerStrategy.equals("GREEN"))
-            return EnergyChoiceStrategyType.GREEN;
-        if (producerStrategy.equals("PRICE"))
-            return EnergyChoiceStrategyType.PRICE;
-        return EnergyChoiceStrategyType.QUANTITY;
     }
 
     public int getId() {
@@ -100,20 +106,8 @@ public final class Distributor implements Observer {
         return contractLength;
     }
 
-    public void setContractLength(final int contractLength) {
-        this.contractLength = contractLength;
-    }
-
     public int getInitialBudget() {
         return initialBudget;
-    }
-
-    public void setInitialBudget(final int initialBudget) {
-        this.initialBudget = initialBudget;
-    }
-
-    public int getInitialInfrastructureCost() {
-        return initialInfrastructureCost;
     }
 
     public void setInitialInfrastructureCost(final int initialInfrastructureCost) {
@@ -154,13 +148,13 @@ public final class Distributor implements Observer {
     public void setConsumersPrice(final int round) {
         //setContractCost();
         setProductionCost();
-        profitMonth = (int) Math.round(Math.floor(0.2 * productionCost));
+        profitMonth = (int) Math.round(Math.floor(Utils.PROFIT * productionCost));
         // calculate the price if there are no consumers
         // or before rounds (which is round 0)
         if (contracts.size() == 0 || round == -1) {
             setNoConsumerPrice();
         } else {
-            payMonth = (int) Math.round(Math.floor((float)(initialInfrastructureCost
+            payMonth = (int) Math.round(Math.floor((float) (initialInfrastructureCost
                     / contracts.size()) + productionCost + profitMonth));
         }
     }
@@ -212,16 +206,8 @@ public final class Distributor implements Observer {
         return producerList;
     }
 
-    public void setProducerList(List<Producer> producerList) {
-        this.producerList = producerList;
-    }
-
-    public void addProducer(Producer producer) {
+    public void addProducer(final Producer producer) {
         producerList.add(producer);
-    }
-
-    public boolean existProducer (Producer p) {
-        return producerList.contains(p);
     }
 
     public void setProductionCost() {
@@ -229,11 +215,7 @@ public final class Distributor implements Observer {
         for (Producer producer : producerList) {
             cost += producer.getEnergyPerDistributor() * producer.getPriceKW();
         }
-        productionCost = (int)Math.round(Math.floor((float)cost/10));
-    }
-
-    public void setContractCost() {
-        contractCost = initialInfrastructureCost + productionCost;
+        productionCost = (int) Math.round(Math.floor((float) cost / Utils.PRODUCTION_RULE));
     }
 
     public boolean needKW() {
@@ -248,13 +230,5 @@ public final class Distributor implements Observer {
     public void update(Observable o, Object arg) {
         productionCost = 0;
         currKW = 0;
-    }
-
-    @Override
-    public String toString() {
-        return "Distributor{" +
-                "id=" + id +
-                ", initialInfrastructureCost=" + initialInfrastructureCost +
-                '}';
     }
 }

@@ -1,9 +1,19 @@
 package output;
 
-import fileio.*;
+
+
+import fileio.Consumers;
+import fileio.Distributor;
+import fileio.InputData;
+import fileio.MonthlyStatus;
+
+import fileio.Producer;
 import payment.Contract;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 
 public final class OutputData {
 
@@ -20,7 +30,7 @@ public final class OutputData {
             outputDistributor.setId(distributor.getId());
             outputDistributor.setEnergyNeededKW(distributor.getEnergyNeededKW());
             outputDistributor.setContractCost(distributor.getPayMonth());
-            outputDistributor.setProducerStrategy(distributor.setEnergyType());
+            outputDistributor.setProducerStrategy(distributor.getProducerStrategy());
             outputDistributor.setBankrupt(distributor.isBankrupt());
             for (Contract contract : distributor.getContracts()) {
                 outputDistributor.addPaymentContract(contract);
@@ -44,14 +54,6 @@ public final class OutputData {
             p.setEnergyType(producer.getEnergyType());
             p.setEnergyPerDistributor(producer.getEnergyPerDistributor());
             for (MonthlyStatus monthlyStatus : producer.getMonthlyStatusList()) {
-
-//                ArrayList<Distributor> auxiliar = new ArrayList<>(monthlyStatus.getDistributors());
-//                Comparator<Distributor> comparator5 = Comparator.comparing(Distributor::getId);
-//                auxiliar.sort(comparator5);
-//                Collections.sort(auxiliar, comparator5);
-//                monthlyStatus.getDistributors().clear();
-//                for (Distributor d : auxiliar)
-//                    monthlyStatus.getDistributors().add(d);
                 p.addMonthlyStat(monthlyStatus);
             }
 
@@ -69,10 +71,12 @@ public final class OutputData {
         Comparator<OutputProducers> comparator2 = Comparator.comparing(OutputProducers::getId);
         energyProducers.sort(comparator2);
 
-        for (OutputProducers outputProducers : energyProducers)
+        for (OutputProducers outputProducers : energyProducers) {
             for (int i = 0; i < inputData.getNumberOfTurns(); i++) {
-                outputProducers.getMonthlyStats().get(i).getDistributorsIds().sort(Integer::compareTo);
+                outputProducers.getMonthlyStats().get(i).
+                        getDistributorsIds().sort(Integer::compareTo);
             }
+        }
 
     }
 

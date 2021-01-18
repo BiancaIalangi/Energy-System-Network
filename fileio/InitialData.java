@@ -30,7 +30,7 @@ public final class InitialData {
         return producers;
     }
 
-    public void setProducers(ArrayList<Producer> producers) {
+    public void setProducers(final ArrayList<Producer> producers) {
         this.producers = producers;
     }
 

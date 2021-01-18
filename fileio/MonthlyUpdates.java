@@ -1,10 +1,7 @@
 package fileio;
-
-import payment.Payment;
-
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Observer;
 
 public final class MonthlyUpdates {
 
@@ -28,39 +25,36 @@ public final class MonthlyUpdates {
         }
     }
 
-    public void findAndNotifyProducer(List<Producer> producers, ProducerChanges pChanges, List<Distributor> distributors) {
-        for (Producer p : producers) {
-            if (p.getId() == pChanges.getId()) {
-                p.setEnergyPerDistributor(pChanges.getEnergyPerDistributor());
-                for (Distributor d : distributors)
-                    if (d.getProducerList().contains(p)) {
-                        for (Producer producer1 : d.getProducerList()) {
-                            producer1.getDistributorList().remove(d);
+    public void updateProducer(List<Producer> producers) {
+        if (!producerChanges.isEmpty()) {
+            List<Distributor> newListDistributor = new ArrayList<>();
+            for (ProducerChanges pChanges : producerChanges) {
+                for (Producer p : producers) {
+                    if (p.getId() == pChanges.getId()) {
+                        p.setEnergyPerDistributor(pChanges.getEnergyPerDistributor());
+                        for (Distributor d : p.getDistributorList()) {
+                            if (!newListDistributor.contains(d)) {
+                                newListDistributor.add(d);
+                            }
                         }
-                        d.getProducerList().clear();
-//                        for (Producer producer : producers) {
-//                            if (producer.getDistributorList().contains(d))
-//                                producer.getDistributorList().remove(d);
-
-//                        }
-                        p.setModification();
                     }
-            }
-        }
-            for (Distributor distributor : distributors) {
-                if (distributor.getProductionCost() == 0) {
-                    distributor.applyStrategy(producers);
                 }
             }
-
+            Comparator<Distributor> comparator = Comparator.comparing(Distributor::getId);
+            newListDistributor.sort(comparator);
+            findAndNotify(newListDistributor, producers);
+        }
     }
 
-
-    public void updateProducer(List<Producer> producers,  List<Distributor> distributors) {
-        if (!producerChanges.isEmpty()) {
-            for (ProducerChanges p : producerChanges) {
-                findAndNotifyProducer(producers, p, distributors);
+    public void findAndNotify(List<Distributor> distributors, List<Producer> producers) {
+        for (Distributor d : distributors) {
+            for (Producer p : d.getProducerList()) {
+                p.getDistributorList().remove(d);
+                p.setModification();
+                p.deleteObserver(d);
             }
+            d.getProducerList().clear();
+            d.applyStrategy(producers);
         }
     }
 

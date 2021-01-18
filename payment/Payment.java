@@ -1,10 +1,16 @@
 package payment;
 
-import fileio.*;
-import strategy.GreenStrategy;
-import strategy.PriceStrategy;
-import strategy.QuantityStrategy;
-import strategy.StrategyProducer;
+
+import fileio.Consumers;
+import fileio.Distributor;
+import fileio.MonthlyUpdates;
+import fileio.Producer;
+import fileio.InputData;
+import strategies.GreenStrategy;
+import strategies.PriceStrategy;
+import strategies.QuantityStrategy;
+import strategies.StrategyProducer;
+import utils.Utils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -15,15 +21,15 @@ public final class Payment {
     private final int numberOfTurns;
 
     // a list with all consumers
-    public final List<Consumers> consumers;
+    private final List<Consumers> consumers;
 
     // a list with all distributors
-    public final List<Distributor> distributors;
+    private final List<Distributor> distributors;
 
     // a list with all updates from rounds
     private final List<MonthlyUpdates> monthlyUpdates;
 
-    public final List<Producer> producers;
+    private final List<Producer> producers;
 
     public Payment(final InputData inputData) {
         numberOfTurns = inputData.getNumberOfTurns();
@@ -100,9 +106,8 @@ public final class Payment {
      * round before changes from numberOfTurns
      */
     public void roundZero() {
-        // find the distributor with the min taxes
         setStrategy();
-
+        // find the distributor with the min taxes
         Distributor distributor = findMinDistributor(-1);
         for (Consumers c : consumers) {
             assert distributor != null;
@@ -131,8 +136,8 @@ public final class Payment {
     }
 
 
-    public StrategyProducer strategyProducer(Distributor distributor) {
-        switch (distributor.setEnergyType()) {
+    public StrategyProducer strategyProducer(final Distributor distributor) {
+        switch (distributor.getProducerStrategy()) {
             case GREEN:
                 return new GreenStrategy();
             case PRICE:
@@ -160,12 +165,7 @@ public final class Payment {
     public void basicRound() {
         roundZero();
         for (int i = 0; i < numberOfTurns; i++) {
-            System.out.println("-----------------------------ROUND " + (i + 1));
-
             monthlyUpdates.get(i).updateConsumerDistributor(consumers, distributors);
-
-            Comparator<Distributor> comparator = Comparator.comparing(Distributor::getId);
-            distributors.sort(comparator);
 
             // calculate price for each distributor
             for (Distributor distributor : distributors) {
@@ -203,11 +203,11 @@ public final class Payment {
                         // and the contract didn't expire
                         if (c.getContract().getRemainedContractMonths() != 0) {
                             // and he can afford to pay
-                            if (c.canPay((int) 2.2 * c.getContract().getPrice())) {
-                                c.payTaxes((int) 2.2 * c.getContract().getPrice());
+                            if (c.canPay((int) Utils.PENALTY * c.getContract().getPrice())) {
+                                c.payTaxes((int) Utils.PENALTY  * c.getContract().getPrice());
                                 for (Distributor d : distributors) {
                                     if (d.getId() == c.getContract().getDistributorID()) {
-                                        d.getPaid((int) 2.2 * c.getContract().getPrice());
+                                        d.getPaid((int) Utils.PENALTY * c.getContract().getPrice());
                                     }
                                 }
                                 c.getContract().decRemainedContractMonths();
@@ -218,10 +218,12 @@ public final class Payment {
                             }
                         } else {
                             // debt from old contract
-                            int oldRest = (int) Math.round(Math.floor(1.2 * c.getRestStatus()));
+                            int oldRest = (int) Math.round(Math.floor(
+                                    Utils.OLD_PENALTY * c.getRestStatus()));
                             int idOldRest = c.getContract().getDistributorID();
                             // find the distributor to pay the debt
-                            findDistributorByID(c.getContract().getDistributorID()).getContracts().remove(c.getContract());
+                            findDistributorByID(c.getContract().getDistributorID()).
+                                    getContracts().remove(c.getContract());
                             // the consumer has no contract anymore
                             c.setContract(null);
                             assert goodDistributor != null;
@@ -230,7 +232,8 @@ public final class Payment {
                             // check if he can afford to pay the debt and the new tax
                             if (c.getContract().getDistributorID() == idOldRest) {
                                 if (c.canPay(oldRest + c.getContract().getPrice())) {
-                                    distributors.get(idOldRest).getPaid(oldRest + c.getContract().getPrice());
+                                    distributors.get(idOldRest).getPaid(
+                                            oldRest + c.getContract().getPrice());
                                     c.payTaxes(oldRest + c.getContract().getPrice());
                                 } else {
                                     c.setBankrupt(true);
@@ -270,28 +273,11 @@ public final class Payment {
                         contract -> contract.getConsumer().isBankrupt());
             }
 
-            monthlyUpdates.get(i).updateProducer(producers, distributors);
-            Comparator<Producer> comparator3 = Comparator.comparing(Producer::getId);
-            producers.sort(comparator3);
+            monthlyUpdates.get(i).updateProducer(producers);
 
-            for (Producer p : producers)
+            for (Producer p : producers) {
                 p.upgradeMonthlyStatusList(i + 1);
-
-//            for (Producer p : producers)
-//                System.out.println(p);
-//            for (Distributor d : distributors)
-//            for (Consumers c : consumers)
-//                System.out.println("ConsumersID " + c.getId() + " a platit " + c.getContract().getPrice() + " buget " + c.getInitialBudget());
-////                System.out.println("DistributorID " + d.getId() + " BUGET " + d.getInitialBudget());
-
-//            for (Producer p : producers)
-//                System.out.println("producersID " + p.getId() + " stats " + p.getMonthlyStatusList());
-
-//            for (Producer p : producers) {
-//                for (Distributor d : p.getDistributorList())
-//                    System.out.println("Producer " + p.getId() + " distributor " + d.getId());
-//            }
-
+            }
         }
     }
 }

@@ -5,10 +5,10 @@ import fileio.Consumers;
 public final class Contract {
 
     // the owner of this contract
-    private Consumers consumer;
+    private final Consumers consumer;
 
     // the distributor's id whom is paying
-    private int distributorID;
+    private final int distributorID;
 
     // the price consumer signed to pay per month
     private int price;
@@ -53,14 +53,5 @@ public final class Contract {
      */
     public void decRemainedContractMonths() {
         remainedContractMonths--;
-    }
-
-    @Override
-    public String toString() {
-        return "Contract{" +
-                "consumerID=" + consumer.getId() +
-                ", price=" + price +
-                ", remainedContractMonths=" + remainedContractMonths +
-                '}';
     }
 }

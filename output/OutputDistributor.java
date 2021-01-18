@@ -60,7 +60,7 @@ public final class OutputDistributor {
         return energyNeededKW;
     }
 
-    public void setEnergyNeededKW(int energyNeededKW) {
+    public void setEnergyNeededKW(final int energyNeededKW) {
         this.energyNeededKW = energyNeededKW;
     }
 
@@ -68,7 +68,7 @@ public final class OutputDistributor {
         return contractCost;
     }
 
-    public void setContractCost(int contractCost) {
+    public void setContractCost(final int contractCost) {
         this.contractCost = contractCost;
     }
 
@@ -85,7 +85,7 @@ public final class OutputDistributor {
         this.isBankrupt = bankrupt;
     }
 
-    public void setProducerStrategy(EnergyChoiceStrategyType producerStrategy) {
+    public void setProducerStrategy(final EnergyChoiceStrategyType producerStrategy) {
         this.producerStrategy = producerStrategy;
     }
 }

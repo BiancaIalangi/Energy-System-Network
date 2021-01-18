@@ -1,6 +1,6 @@
 package fileio;
 
-public class ProducerChanges {
+public final class ProducerChanges {
     private int id;
 
     private int energyPerDistributor;
@@ -9,7 +9,7 @@ public class ProducerChanges {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(final int id) {
         this.id = id;
     }
 
@@ -17,7 +17,7 @@ public class ProducerChanges {
         return energyPerDistributor;
     }
 
-    public void setEnergyPerDistributor(int energyPerDistributor) {
+    public void setEnergyPerDistributor(final int energyPerDistributor) {
         this.energyPerDistributor = energyPerDistributor;
     }
 }

@@ -2,12 +2,10 @@ package output;
 
 import entities.EnergyType;
 import fileio.MonthlyStatus;
-import payment.Contract;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class OutputProducers {
+public final class OutputProducers {
     private int id;
 
     private int maxDistributors;
@@ -20,8 +18,9 @@ public class OutputProducers {
 
     private List<OutputMonthlyStatus> monthlyStats = new ArrayList<>();
 
-    public void addMonthlyStat(MonthlyStatus monthlyStat) {
-        OutputMonthlyStatus outputMonthlyStatus = new OutputMonthlyStatus(monthlyStat.getMonth(), monthlyStat.getDistributors());
+    public void addMonthlyStat(final MonthlyStatus monthlyStat) {
+        OutputMonthlyStatus outputMonthlyStatus = new OutputMonthlyStatus(
+                monthlyStat.getMonth(), monthlyStat.getDistributors());
         monthlyStats.add(outputMonthlyStatus);
     }
 
@@ -29,7 +28,7 @@ public class OutputProducers {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(final int id) {
         this.id = id;
     }
 
@@ -37,7 +36,7 @@ public class OutputProducers {
         return maxDistributors;
     }
 
-    public void setMaxDistributors(int maxDistributors) {
+    public void setMaxDistributors(final int maxDistributors) {
         this.maxDistributors = maxDistributors;
     }
 
@@ -45,7 +44,7 @@ public class OutputProducers {
         return priceKW;
     }
 
-    public void setPriceKW(double priceKW) {
+    public void setPriceKW(final double priceKW) {
         this.priceKW = priceKW;
     }
 
@@ -53,7 +52,7 @@ public class OutputProducers {
         return energyType;
     }
 
-    public void setEnergyType(EnergyType energyType) {
+    public void setEnergyType(final EnergyType energyType) {
         this.energyType = energyType;
     }
 
@@ -61,7 +60,7 @@ public class OutputProducers {
         return energyPerDistributor;
     }
 
-    public void setEnergyPerDistributor(int energyPerDistributor) {
+    public void setEnergyPerDistributor(final int energyPerDistributor) {
         this.energyPerDistributor = energyPerDistributor;
     }
 
@@ -69,7 +68,7 @@ public class OutputProducers {
         return monthlyStats;
     }
 
-    public void setMonthlyStats(List<OutputMonthlyStatus> monthlyStats) {
+    public void setMonthlyStats(final List<OutputMonthlyStatus> monthlyStats) {
         this.monthlyStats = monthlyStats;
     }
 }

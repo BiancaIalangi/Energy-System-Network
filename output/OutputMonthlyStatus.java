@@ -4,12 +4,12 @@ import fileio.Distributor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OutputMonthlyStatus {
+public final class OutputMonthlyStatus {
     private int month;
 
     private List<Integer> distributorsIds = new ArrayList<>();
 
-    public OutputMonthlyStatus(int month, List<Distributor> distributors) {
+    public OutputMonthlyStatus(final int month, final List<Distributor> distributors) {
         this.month = month;
         for (Distributor d : distributors) {
             distributorsIds.add(d.getId());
@@ -20,7 +20,7 @@ public class OutputMonthlyStatus {
         return month;
     }
 
-    public void setMonth(int month) {
+    public void setMonth(final int month) {
         this.month = month;
     }
 
@@ -28,7 +28,7 @@ public class OutputMonthlyStatus {
         return distributorsIds;
     }
 
-    public void setDistributorsIds(List<Integer> distributorsIds) {
+    public void setDistributorsIds(final List<Integer> distributorsIds) {
         this.distributorsIds = distributorsIds;
     }
 }
