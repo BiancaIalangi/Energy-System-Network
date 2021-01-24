@@ -1,33 +1,27 @@
 package output;
 
 public final class OutputConsumer {
-    private int id;
+    private final int id;
 
-    private boolean isBankrupt;
+    private final boolean isBankrupt;
 
-    private int budget;
+    private final int budget;
+
+    public OutputConsumer(int id, boolean isBankrupt, int budget) {
+        this.id = id;
+        this.isBankrupt = isBankrupt;
+        this.budget = budget;
+    }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
     }
 
     public int getBudget() {
         return budget;
     }
 
-    public void setBudget(final int initialBudget) {
-        this.budget = initialBudget;
-    }
-
     public boolean getIsBankrupt() {
         return isBankrupt;
-    }
-
-    public void setBankrupt(final boolean bankrupt) {
-        this.isBankrupt = bankrupt;
     }
 }

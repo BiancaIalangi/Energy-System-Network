@@ -1,82 +1,66 @@
 package output;
-
-
-
-import fileio.Consumers;
-import fileio.Distributor;
+import interaction.Consumers;
+import interaction.Distributor;
 import fileio.InputData;
-import fileio.MonthlyStatus;
-
-import fileio.Producer;
+import interaction.MonthlyStatus;
+import interaction.Producer;
 import payment.Contract;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-
 public final class OutputData {
 
-    private List<OutputConsumer> consumers = new ArrayList<>();
-    private List<OutputDistributor> distributors = new ArrayList<>();
-    private List<OutputProducers> energyProducers = new ArrayList<>();
+    private final List<OutputConsumer> consumers = new ArrayList<>();
+    private final List<OutputDistributor> distributors = new ArrayList<>();
+    private final List<OutputProducers> energyProducers = new ArrayList<>();
 
     public OutputData(final InputData inputData) {
         // create output for distributors to write in json
         for (Distributor distributor : inputData.getInitialData().getDistributors()) {
-            OutputDistributor outputDistributor = new OutputDistributor();
+            OutputDistributor outputD = new OutputDistributor(distributor.getId(),
+                    distributor.getEnergyNeededKW(), distributor.getPayMonth(),
+                    distributor.getInitialBudget(),  distributor.isBankrupt(),
+                    distributor.getProducerStrategy());
 
-            outputDistributor.setBudget(distributor.getInitialBudget());
-            outputDistributor.setId(distributor.getId());
-            outputDistributor.setEnergyNeededKW(distributor.getEnergyNeededKW());
-            outputDistributor.setContractCost(distributor.getPayMonth());
-            outputDistributor.setProducerStrategy(distributor.getProducerStrategy());
-            outputDistributor.setBankrupt(distributor.isBankrupt());
             for (Contract contract : distributor.getContracts()) {
-                outputDistributor.addPaymentContract(contract);
+                outputD.addPaymentContract(contract);
             }
-            distributors.add(outputDistributor);
+            distributors.add(outputD);
         }
+
         // create output for consumers to write in json
         for (Consumers consumer : inputData.getInitialData().getConsumers()) {
-            OutputConsumer cons = new OutputConsumer();
-            cons.setId(consumer.getId());
-            cons.setBankrupt(consumer.isBankrupt());
-            cons.setBudget(consumer.getInitialBudget());
-            consumers.add(cons);
+            OutputConsumer outputC = new OutputConsumer(consumer.getId(), consumer.isBankrupt(),
+                    consumer.getInitialBudget());
+            consumers.add(outputC);
         }
 
+        // create output for producers to write in json
         for (Producer producer : inputData.getInitialData().getProducers()) {
-            OutputProducers p = new OutputProducers();
-            p.setId(producer.getId());
-            p.setMaxDistributors(producer.getMaxDistributors());
-            p.setPriceKW(producer.getPriceKW());
-            p.setEnergyType(producer.getEnergyType());
-            p.setEnergyPerDistributor(producer.getEnergyPerDistributor());
-            for (MonthlyStatus monthlyStatus : producer.getMonthlyStatusList()) {
-                p.addMonthlyStat(monthlyStatus);
-            }
+            OutputProducers outputP = new OutputProducers(producer.getId(),
+                    producer.getMaxDistributors(), producer.getPriceKW(),
+                    producer.getEnergyType(), producer.getEnergyPerDistributor());
 
-            energyProducers.add(p);
+            for (MonthlyStatus monthlyStatus : producer.getMonthlyStatusList()) {
+                outputP.addMonthlyStat(monthlyStatus);
+            }
+            energyProducers.add(outputP);
         }
 
         // order consumers by their id (ascending order)
-        Comparator<OutputConsumer> comparator = Comparator.comparing(OutputConsumer::getId);
-        consumers.sort(comparator);
+        consumers.sort(Comparator.comparing(OutputConsumer::getId));
 
         // order distributor by their id (ascending order)
-        Comparator<OutputDistributor> comparator1 = Comparator.comparing(OutputDistributor::getId);
-        distributors.sort(comparator1);
+        distributors.sort(Comparator.comparing(OutputDistributor::getId));
 
-        Comparator<OutputProducers> comparator2 = Comparator.comparing(OutputProducers::getId);
-        energyProducers.sort(comparator2);
+        // order producers by their id (ascending order)
+        energyProducers.sort(Comparator.comparing(OutputProducers::getId));
 
-        for (OutputProducers outputProducers : energyProducers) {
-            for (int i = 0; i < inputData.getNumberOfTurns(); i++) {
-                outputProducers.getMonthlyStats().get(i).
-                        getDistributorsIds().sort(Integer::compareTo);
-            }
-        }
+        // show monthly status chronological for each producer
+        energyProducers.forEach(outputProducers -> outputProducers.getMonthlyStats().
+                forEach(outputMonthlyStatus -> outputMonthlyStatus.getDistributorsIds().
+                        sort(Integer::compareTo)));
 
     }
 
@@ -84,23 +68,11 @@ public final class OutputData {
         return consumers;
     }
 
-    public void setConsumers(final List<OutputConsumer> consumers) {
-        this.consumers = consumers;
-    }
-
     public List<OutputDistributor> getDistributors() {
         return distributors;
     }
 
-    public void setDistributors(final List<OutputDistributor> distributors) {
-        this.distributors = distributors;
-    }
-
     public List<OutputProducers> getEnergyProducers() {
         return energyProducers;
-    }
-
-    public void setEnergyProducers(List<OutputProducers> energyProducers) {
-        this.energyProducers = energyProducers;
     }
 }

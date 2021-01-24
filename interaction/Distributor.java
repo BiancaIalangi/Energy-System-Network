@@ -1,4 +1,4 @@
-package fileio;
+package interaction;
 
 import payment.Contract;
 import strategies.EnergyChoiceStrategyType;
@@ -27,11 +27,13 @@ public final class Distributor implements Observer {
 
     private EnergyChoiceStrategyType producerStrategy;
 
+    // for strategy pattern
     private StrategyProducer strategyProducer;
 
     private int productionCost = 0;
 
-    private List<Producer> producerList = new ArrayList<>();
+    // the producers from which the distributor takes energy
+    private final List<Producer> producerList = new ArrayList<>();
 
     // how much a consumer has to pay
     private int payMonth;
@@ -47,35 +49,8 @@ public final class Distributor implements Observer {
     // database of contracts (assigned to this distributor)
     private List<Contract> contracts = new ArrayList<>();
 
-    public void applyStrategy(final List<Producer> producers) {
-        strategyProducer.strategyOrderProducer(producers, this);
-    }
-
-//    public Distributor createCpy() {
-//        Distributor dCopy = new Distributor();
-//        dCopy.id = id;
-//        dCopy.contractLength = contractLength;
-//        dCopy.initialBudget = initialBudget;
-//        dCopy.initialInfrastructureCost = initialInfrastructureCost;
-//        dCopy.energyNeededKW = energyNeededKW;
-//        dCopy.producerStrategy = producerStrategy;
-//        dCopy.strategyProducer = strategyProducer;
-//        dCopy.productionCost = productionCost;
-//        dCopy.producerList = producerList;
-//        dCopy.payMonth = payMonth;
-//        dCopy.profitMonth = profitMonth;
-//        dCopy.costsMonth = costsMonth;
-//        dCopy.bankrupt = bankrupt;
-//        dCopy.contracts = contracts;
-//        return dCopy;
-//    }
-
     public void setStrategyProducer(final StrategyProducer strategyProducer) {
         this.strategyProducer = strategyProducer;
-    }
-
-    public void addCurrKW(final int addKW) {
-        currKW += addKW;
     }
 
     public int getEnergyNeededKW() {
@@ -134,6 +109,24 @@ public final class Distributor implements Observer {
         this.contracts = contracts;
     }
 
+    public int getProductionCost() {
+        return productionCost;
+    }
+
+    public List<Producer> getProducerList() {
+        return producerList;
+    }
+
+    /**
+     * strategy pattern
+     * select the producers from which the distributor
+     * will take energy based on the strategy
+     * @param producers
+     */
+    public void applyStrategy(final List<Producer> producers) {
+        strategyProducer.strategyOrderProducer(producers, this);
+    }
+
     /**
      * calculate the final price if there are no clients (per month)
      */
@@ -146,7 +139,6 @@ public final class Distributor implements Observer {
      * @param round from numberOfTurns
      */
     public void setConsumersPrice(final int round) {
-        //setContractCost();
         setProductionCost();
         profitMonth = (int) Math.round(Math.floor(Utils.PROFIT * productionCost));
         // calculate the price if there are no consumers
@@ -173,8 +165,7 @@ public final class Distributor implements Observer {
     }
 
     /**
-     * create a new contract and add in
-     * distributor's database
+     * add a contract in distributor's database
      * @param contract the new contract that needs to
      *                 be added in distributor's database
      */
@@ -202,14 +193,17 @@ public final class Distributor implements Observer {
         initialBudget -= costsMonth;
     }
 
-    public List<Producer> getProducerList() {
-        return producerList;
-    }
-
+    /**
+     * add producer from which the distributor will take energy
+     * @param producer will give distributor energy
+     */
     public void addProducer(final Producer producer) {
         producerList.add(producer);
     }
 
+    /**
+     * calculate production cost
+     */
     public void setProductionCost() {
         double cost = 0;
         for (Producer producer : producerList) {
@@ -218,14 +212,32 @@ public final class Distributor implements Observer {
         productionCost = (int) Math.round(Math.floor((float) cost / Utils.PRODUCTION_RULE));
     }
 
+    /**
+     * verify if the current energy he owns is enough
+     * @return true if the distributor needs more energy
+     * false if he does not need
+     */
     public boolean needKW() {
         return currKW <= energyNeededKW;
     }
 
-    public int getProductionCost() {
-        return productionCost;
+
+    /**
+     * add energy to the current quantity of energy
+     * @param addKW energy from the new producer
+     */
+    public void addCurrKW(final int addKW) {
+        currKW += addKW;
     }
 
+    /**
+     * observer pattern
+     * set distributor's production cost and the current quantity
+     * of energy on 0 when a producer from his list updates
+     * energy per distributor
+     * @param o distributor
+     * @param arg
+     */
     @Override
     public void update(Observable o, Object arg) {
         productionCost = 0;

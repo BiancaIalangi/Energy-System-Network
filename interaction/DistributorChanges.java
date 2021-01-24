@@ -1,4 +1,4 @@
-package fileio;
+package interaction;
 
 public final class DistributorChanges {
 
@@ -18,7 +18,4 @@ public final class DistributorChanges {
         this.id = id;
     }
 
-    public void setInfrastructureCost(final int infrastructureCost) {
-        this.infrastructureCost = infrastructureCost;
-    }
 }

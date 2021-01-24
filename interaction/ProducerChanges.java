@@ -1,4 +1,4 @@
-package fileio;
+package interaction;
 
 public final class ProducerChanges {
     private int id;

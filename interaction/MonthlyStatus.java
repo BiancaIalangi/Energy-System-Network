@@ -1,17 +1,19 @@
-package fileio;
+package interaction;
+
 import java.util.List;
 
+/**
+ * producers' monthly status
+ */
 public final class MonthlyStatus {
-    private int month;
+    private final int month;
+
+    // distributors that are subscribed to a certain producer in a certain month
     private final List<Distributor> distributors;
 
     public MonthlyStatus(final int month, final List<Distributor> distributors) {
         this.month = month;
         this.distributors = distributors;
-    }
-
-    public void setMonth(final int month) {
-        this.month = month;
     }
 
     public int getMonth() {

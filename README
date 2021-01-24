@@ -1,0 +1,122 @@
+# Proiect Energy System Etapa 2
+
+## Despre
+
+Proiectare Orientata pe Obiecte, Seria CA
+2020-2021
+
+<https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/proiect/etapa2>
+
+Student: Ialangi Bianca-Elena, 321CA
+
+## Rulare teste
+  * ruleaza solutia pe testele din checker/, comparand rezultatele cu cele de referinta
+  * ruleaza checkstyle
+
+Detalii despre teste: checker/README
+
+Biblioteci necesare pentru implementare:
+* Jackson Core 
+* Jackson Databind 
+* Jackson Annotations
+
+## Implementare
+
+### Entitati
+
+entities:
+	* EnergyType: clasa ce contine tipul de energie pe care il poate avea un producator
+
+fileio: package-ul se ocupa cu citirea informatiilor din fisiere si organizarea datelor citite
+	intr-un mod cat mai facil
+	* InputData: contine numberOfTurns, initalData si monthlyUpdates. Mai exact, sunt datele
+	extrase din fisiere json din directorul in
+	* InitialData: contine totalitatea distribuitorilor, consumatorilor si producatorilor. S-a creat
+	o lista de distribuitori, consumatori si producatori pentru a avea accesibilitatea de a
+	realiza viitoarele update-uri din fiecare runda.
+
+interaction: 
+	* Consumers: contine toate informatiile ce pot descrie un consumator: bugetul, venitul lunar,
+	datoriile, contractul prin care se aboneaza distribuitorului si daca este falit. Exista metode:
+	    -> ce actulizeaza bugetul curent al consumatorului
+	    -> ce stabilesc daca este apt sa isi plateasca datoriile sau nu.
+	* Distributors: contine toate informatiile ce pot descrie un distribuitor: bugetul, costurile
+	lunare, venitul lunar, tipul de energie de care are nevoie, o lista cu producatorii la care este abonat,
+	o lista cu contractele stabilite cu consumatorii abonati la el. Exista metode:
+	    -> ce actulizeaza, la fiecare schimbare facuta intr-o runda, noul pret pe care il cere
+	    consumatilor abonati
+        -> ce actulizeaza baza de date a contractelor
+        -> ce actulizeaza baza de date a producatorilor la care este abonat
+        -> ce se ocupa cu platirea taxelor lunar
+        -> ce contorizeaza cantitatea de energie curenta, urmand sa se verifice ulterior daca mai este
+        nevoie sa se aboneze altui producator
+    * Producer: contine toate informatiile ce pot descrie un producator: tipul de energie pe care il
+     distribuie, pretul pe KW, capacitatea maxima de distribuitori pe care o poate avea si cat este
+     dispus sa dea fiecarui distribuitor. In plus, exista un database unde sunt inregistrati toti
+     distributorii abonati la acest producator si un database ce urmareste lunar activitatea
+     producatorului. Exista metode:
+        -> ce updateaza lunar activitatea producatorului
+        -> ce verifica daca mai are loc pentru abonarea altui distribuitor
+        -> ce notifica distribuitorii abonati in cazul unei modificari asupra unor valori
+    * DistributorChanges: contine actulizarile ce trebuie facute distribuitorului in fiecare runda
+    * MonthlyStatus: se ocupa cu activitatea fiecarui producator, in fiecare luna: mai exact
+    contorizeaza ce distribuitori s-au abonat de-a lungul perioadei examinate.
+    * ProducerChanges: contine actulizarile ce trebuie facute producatorului in fiecare runda
+    * MonthlyUpdates: contine noi consumatori ce au fost introdusi in runda si daca este cazul si
+    actulizarile atribuite unor anumiti producatori si distribuitori. Exista metode:
+        -> ce aplica actulizarile distribuitorilor si consumatorilor
+        -> ce aplica actulizarile producatorilor, implicand toate consecintele acestor schimbari. Mai
+        exact, reselectarea producatorilor potriviti pentru distribuitorii abonati la producatorul
+        actualizat.
+
+output: crearea claselor de tip out pentru a putea scrie in fisere de tip JSON
+    * OutputConsumer
+    * OutputContract
+    * OutputData
+    * OutputDistributor
+    * OutputMonthlyStatus
+    * OutputProducers
+
+payment:
+    * Contract: contine consumatorul, id-ul distribuitorului cu care s-a stabilit intelegerea, perioada
+     in care consumatorul este abonat si pretul pe care il plateste lunar distribuitorului.
+    * ContractFactory: implementeza un database unic in care se creeaza sau se folosesc contracte.
+    * Payment: contine numarul de runde contorizat, toti consumatorii, producatorii, distribuitorii si
+    schimbarile ce trebuie facute.  Am ales declararea unor liste de distribuitori, consumatori,
+    monthlyUpdates si nu implementarea directa a obiectului InputData ce continea aceleasi informatii
+    pentru a nu exista confuzie asupra datelor. Exista metode:
+        -> ce gasesc distribuitorul potrivit
+        -> ce creeaza contracte
+        -> ce selecteaza producatorii potriviti pentru toti distribuitorii
+        -> ce executa fiecare runda
+
+strategies:
+    * EnergyChoiceStrategyType
+    * StrategyProducer: aplica strategia in functie de tipul de energie de care are nevoie distribuitorul
+        ** GreenStrategy
+        ** PriceStrategy
+        ** QuantityStrategy
+
+utils:
+    * Utils
+
+### Design patterns
+
+Singleton si Factory
+    * implemenatarea Singleton-ului asupra design pattern-ului de Factory. Astfel se implementeza un
+    database unic in care creez sau folosesc contracte.
+
+Strategy:
+    * modul de alegere a producatorilor pentru fiecare distribuitor implementeaza un algoritm dinamic
+    pentru a nu face sistemul prea strâns cuplat.
+    * astfel se creeaza o clasa abstracta ce implementeaza acelasi mod de selectare a unei ordini
+    diferite de producatori. Aceasta ordonare a producatorilor se face printr-o metoda abstracta ce
+    este aplicata in toate clasele ce extind clasa abstracta.
+
+Observer:
+    * Observator - distribuitori
+    * Observabil - producatori
+    * de fiecare data un producator va suferi schimbari fiecare distribuitori din lista lui va fi
+    notificat prin setarea pretului de productie cu 0 si valoarea energiei curente tot cu 0.
+
+

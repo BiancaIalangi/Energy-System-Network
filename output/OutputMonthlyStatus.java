@@ -1,13 +1,13 @@
 package output;
 
-import fileio.Distributor;
+import interaction.Distributor;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class OutputMonthlyStatus {
-    private int month;
+    private final int month;
 
-    private List<Integer> distributorsIds = new ArrayList<>();
+    private final List<Integer> distributorsIds = new ArrayList<>();
 
     public OutputMonthlyStatus(final int month, final List<Distributor> distributors) {
         this.month = month;
@@ -20,15 +20,7 @@ public final class OutputMonthlyStatus {
         return month;
     }
 
-    public void setMonth(final int month) {
-        this.month = month;
-    }
-
     public List<Integer> getDistributorsIds() {
         return distributorsIds;
-    }
-
-    public void setDistributorsIds(final List<Integer> distributorsIds) {
-        this.distributorsIds = distributorsIds;
     }
 }

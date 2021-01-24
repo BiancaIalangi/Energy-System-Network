@@ -8,19 +8,57 @@ import java.util.List;
 
 public final class OutputDistributor {
 
-    private int id;
+    private final int id;
 
-    private int energyNeededKW;
+    private final int energyNeededKW;
 
-    private int contractCost;
+    private final int contractCost;
 
-    private int budget;
+    private final int budget;
 
-    private boolean isBankrupt;
+    private final boolean isBankrupt;
 
-    private EnergyChoiceStrategyType producerStrategy;
+    private final EnergyChoiceStrategyType producerStrategy;
 
-    private List<OutputContract> contracts = new ArrayList<>();
+    private final List<OutputContract> contracts = new ArrayList<>();
+
+    public OutputDistributor(int id, int energyNeededKW, int contractCost, int budget,
+                             boolean isBankrupt, EnergyChoiceStrategyType producerStrategy) {
+        this.id = id;
+        this.energyNeededKW = energyNeededKW;
+        this.contractCost = contractCost;
+        this.budget = budget;
+        this.isBankrupt = isBankrupt;
+        this.producerStrategy = producerStrategy;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getBudget() {
+        return budget;
+    }
+
+    public List<OutputContract> getContracts() {
+        return contracts;
+    }
+
+    public int getEnergyNeededKW() {
+        return energyNeededKW;
+    }
+
+    public int getContractCost() {
+        return contractCost;
+    }
+
+    public EnergyChoiceStrategyType getProducerStrategy() {
+        return producerStrategy;
+    }
+
+    public boolean getIsBankrupt() {
+        return isBankrupt;
+    }
 
     /**
      * create output for contracts to write in json
@@ -30,62 +68,5 @@ public final class OutputDistributor {
         OutputContract contract = new OutputContract(c.getConsumer().getId(),
                 c.getPrice(), c.getRemainedContractMonths());
         this.contracts.add(contract);
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
-    }
-
-    public int getBudget() {
-        return budget;
-    }
-
-    public void setBudget(final int budget) {
-        this.budget = budget;
-    }
-
-    public List<OutputContract> getContracts() {
-        return contracts;
-    }
-
-    public void setContracts(final List<OutputContract> contracts) {
-        this.contracts = contracts;
-    }
-
-    public int getEnergyNeededKW() {
-        return energyNeededKW;
-    }
-
-    public void setEnergyNeededKW(final int energyNeededKW) {
-        this.energyNeededKW = energyNeededKW;
-    }
-
-    public int getContractCost() {
-        return contractCost;
-    }
-
-    public void setContractCost(final int contractCost) {
-        this.contractCost = contractCost;
-    }
-
-    public EnergyChoiceStrategyType getProducerStrategy() {
-        return producerStrategy;
-    }
-
-
-    public boolean getIsBankrupt() {
-        return isBankrupt;
-    }
-
-    public void setBankrupt(final boolean bankrupt) {
-        this.isBankrupt = bankrupt;
-    }
-
-    public void setProducerStrategy(final EnergyChoiceStrategyType producerStrategy) {
-        this.producerStrategy = producerStrategy;
     }
 }

@@ -1,4 +1,4 @@
-package fileio;
+package interaction;
 import payment.Contract;
 
 public final class Consumers {
@@ -14,6 +14,7 @@ public final class Consumers {
     // consumer's debts
     private int restStatus;
 
+    // the contract assigned to this consumer
     private Contract contract;
 
     public Contract getContract() {
@@ -36,16 +37,8 @@ public final class Consumers {
         return initialBudget;
     }
 
-    public void setInitialBudget(final int initialBudget) {
-        this.initialBudget = initialBudget;
-    }
-
     public int getMonthlyIncome() {
         return monthlyIncome;
-    }
-
-    public void setMonthlyIncome(final int monthlyIncome) {
-        this.monthlyIncome = monthlyIncome;
     }
 
     public int getRestStatus() {

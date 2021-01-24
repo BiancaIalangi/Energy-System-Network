@@ -1,5 +1,9 @@
 package fileio;
 
+import interaction.Consumers;
+import interaction.Distributor;
+import interaction.Producer;
+
 import java.util.ArrayList;
 
 public final class InitialData {

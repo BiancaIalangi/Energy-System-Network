@@ -2,11 +2,11 @@ package output;
 
 public final class OutputContract {
 
-    private int consumerId;
+    private final int consumerId;
 
-    private int price;
+    private final int price;
 
-    private int remainedContractMonths;
+    private final int remainedContractMonths;
 
     public OutputContract(final int consumerId, final int price, final int remainedContractMonths) {
         this.consumerId = consumerId;
@@ -18,23 +18,11 @@ public final class OutputContract {
         return consumerId;
     }
 
-    public void setConsumerId(final int consumerId) {
-        this.consumerId = consumerId;
-    }
-
     public int getPrice() {
         return price;
     }
 
-    public void setPrice(final int price) {
-        this.price = price;
-    }
-
     public int getRemainedContractMonths() {
         return remainedContractMonths;
-    }
-
-    public void setRemainedContractMonths(final int remainedContractMonths) {
-        this.remainedContractMonths = remainedContractMonths;
     }
 }

@@ -1,6 +1,6 @@
 package payment;
 
-import fileio.Consumers;
+import interaction.Consumers;
 
 public final class Contract {
 
@@ -11,7 +11,7 @@ public final class Contract {
     private final int distributorID;
 
     // the price consumer signed to pay per month
-    private int price;
+    private final int price;
 
     // how many months remained to pay
     private int remainedContractMonths;
@@ -36,16 +36,8 @@ public final class Contract {
         return price;
     }
 
-    public void setPrice(final int price) {
-        this.price = price;
-    }
-
     public int getRemainedContractMonths() {
         return remainedContractMonths;
-    }
-
-    public void setRemainedContractMonths(final int remainedContractMonths) {
-        this.remainedContractMonths = remainedContractMonths;
     }
 
     /**

@@ -1,4 +1,4 @@
-package fileio;
+package interaction;
 
 import entities.EnergyType;
 
@@ -17,10 +17,13 @@ public final class Producer extends Observable {
 
     private int energyPerDistributor;
 
+    // database of distributors (assigned to this producer)
     private final List<Distributor> distributorList = new ArrayList<>();
 
+    // an evidence of producer's activity
     private List<MonthlyStatus> monthlyStatusList = new ArrayList<>();
 
+    // type of energy, if is green or not
     private boolean isGreen;
 
     public boolean isGreen() {
@@ -83,11 +86,22 @@ public final class Producer extends Observable {
         this.monthlyStatusList = monthlyStatusList;
     }
 
+    /**
+     * update the list of Monthly Status each month to see how
+     * many distributors receive energy from this producer
+     * @param month that it keep track on activity
+     */
     public void upgradeMonthlyStatusList(final int month) {
         List<Distributor> copyDistributorList = java.util.List.copyOf(distributorList);
         monthlyStatusList.add(new MonthlyStatus(month, copyDistributorList));
     }
 
+    /**
+     * verify if a new distributor can receive energy from this producer
+     * if he can, he is added in producer's database
+     * @param distributor that wants to subscribe to this producer
+     * @return if he can or not
+     */
     public boolean canAddObserver(final Distributor distributor) {
         if (distributorList.size() == maxDistributors) {
             return false;
@@ -96,6 +110,9 @@ public final class Producer extends Observable {
         return true;
     }
 
+    /**
+     * Observer pattern
+     */
     public void setModification() {
         setChanged();
         notifyObservers();

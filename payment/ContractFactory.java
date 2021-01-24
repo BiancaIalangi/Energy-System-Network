@@ -1,6 +1,6 @@
 package payment;
 
-import fileio.Consumers;
+import interaction.Consumers;
 
 public final class ContractFactory {
     private static ContractFactory generateFactory = null;
