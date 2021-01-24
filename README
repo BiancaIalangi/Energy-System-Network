@@ -40,15 +40,15 @@ interaction:
 	datoriile, contractul prin care se aboneaza distribuitorului si daca este falit. Exista metode:
 	    -> ce actulizeaza bugetul curent al consumatorului
 	    -> ce stabilesc daca este apt sa isi plateasca datoriile sau nu.
-	* Distributors: contine toate informatiile ce pot descrie un distribuitor: bugetul, costurile
-	lunare, venitul lunar, tipul de energie de care are nevoie, o lista cu producatorii la care este abonat,
-	o lista cu contractele stabilite cu consumatorii abonati la el. Exista metode:
-	    -> ce actulizeaza, la fiecare schimbare facuta intr-o runda, noul pret pe care il cere
+    * Distributors: contine toate informatiile ce pot descrie un distribuitor: bugetul, costurile
+    lunare, venitul lunar, tipul de energie de care are nevoie, o lista cu producatorii la care este abonat,
+    o lista cu contractele stabilite cu consumatorii abonati la el. Exista metode:
+	 -> ce actulizeaza, la fiecare schimbare facuta intr-o runda, noul pret pe care il cere
 	    consumatilor abonati
-        -> ce actulizeaza baza de date a contractelor
-        -> ce actulizeaza baza de date a producatorilor la care este abonat
-        -> ce se ocupa cu platirea taxelor lunar
-        -> ce contorizeaza cantitatea de energie curenta, urmand sa se verifice ulterior daca mai este
+         -> ce actulizeaza baza de date a contractelor
+         -> ce actulizeaza baza de date a producatorilor la care este abonat
+         -> ce se ocupa cu platirea taxelor lunar
+         -> ce contorizeaza cantitatea de energie curenta, urmand sa se verifice ulterior daca mai este
         nevoie sa se aboneze altui producator
     * Producer: contine toate informatiile ce pot descrie un producator: tipul de energie pe care il
      distribuie, pretul pe KW, capacitatea maxima de distribuitori pe care o poate avea si cat este
